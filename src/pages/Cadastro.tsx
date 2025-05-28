@@ -1,8 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { Controller, useForm } from "react-hook-form"
-import { Text, View } from "react-native"
-import { RootStackParamList } from "../types/routes"
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { TextInput } from "react-native-gesture-handler"
+import { RootStackParamList } from "../types/routes"
 
 export interface FormData {
     username: string,
@@ -11,15 +11,15 @@ export interface FormData {
     email: string,
 }
 
-type Props= NativeStackScreenProps<RootStackParamList, "Cadastro">
+type Props = NativeStackScreenProps<RootStackParamList, "Cadastro">
 
 function Cadastro({ navigation }: Props) {
     const {
         control,
         handleSubmit,
         formState: { errors },
-        setValue,
         watch,
+        reset,
     } = useForm<FormData>({
         defaultValues: {
             username: "",
@@ -29,59 +29,59 @@ function Cadastro({ navigation }: Props) {
         },
     });
 
+    const password = watch("password");
+
     const onSubmit = (data: FormData) => {
         console.log("Dados do formulário: ", data);
+        Alert.alert("Cadastro realizado com sucesso!");
+        navigation.navigate("Mapa")
+        reset();
     };
 
-    const password = watch("password"); 
-
     return (
-        <View style={{ padding: 20 }}>
-            <Text>Bem-vindo(a)</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Cadastro</Text>
             <View>
+                <Text style={styles.label}>Usuário:</Text>
                 <Controller
                     name="username"
                     control={control}
                     rules={{ required: "Usuário é obrigatório" }}
                     render={({ field: { onChange, value } }) => (
-                        <View>
-                            <Text>Usuário</Text>
-                            <TextInput
-                                value={value}
-                                onChangeText={onChange}
-                                placeholder="Digite seu usuário"
-                                style={{ borderBottomWidth: 1, marginBottom: 10 }}
-                            />
-                        </View>
+                        <TextInput
+                            value={value}
+                            onChangeText={onChange}
+                            placeholder="Digite seu usuário"
+                            style={styles.input}
+                        />
                     )}
                 />
-                {errors?.username && <Text style={{ color: 'red' }}>{errors.username.message}</Text>}
+                {errors?.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
+                <Text style={styles.label}>Senha:</Text>
                 <Controller
                     name="password"
                     control={control}
                     rules={{
                         required: "Senha é obrigatória",
                         maxLength: {
-                            value: 10,
+                            value: 15,
                             message: "A senha não pode ter mais de 10 caracteres",
                         },
                     }}
                     render={({ field: { onChange, value } }) => (
-                        <View>
-                            <Text>Senha</Text>
-                            <TextInput
-                                value={value}
-                                onChangeText={onChange}
-                                placeholder="Digite sua senha"
-                                secureTextEntry
-                                style={{ borderBottomWidth: 1, marginBottom: 10 }}
-                            />
-                        </View>
+                        <TextInput
+                            value={value}
+                            onChangeText={onChange}
+                            placeholder="Digite sua senha"
+                            secureTextEntry
+                            style={styles.input}
+                        />
                     )}
                 />
-                {errors?.password && <Text style={{ color: 'red' }}>{errors.password.message}</Text>}
+                {errors?.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
+                <Text style={styles.label}>Confirmar Senha:</Text>
                 <Controller
                     name="confirmPassword"
                     control={control}
@@ -91,22 +91,20 @@ function Cadastro({ navigation }: Props) {
                             value === password || "As senhas não coincidem",
                     }}
                     render={({ field: { onChange, value } }) => (
-                        <View>
-                            <Text>Confirmar Senha</Text>
-                            <TextInput
-                                value={value}
-                                onChangeText={onChange}
-                                placeholder="Confirme sua senha"
-                                secureTextEntry
-                                style={{ borderBottomWidth: 1, marginBottom: 10 }}
-                            />
-                        </View>
+                        <TextInput
+                            value={value}
+                            onChangeText={onChange}
+                            placeholder="Confirme sua senha"
+                            secureTextEntry
+                            style={styles.input}
+                        />
                     )}
                 />
                 {errors?.confirmPassword && (
-                    <Text style={{ color: 'red' }}>{errors.confirmPassword.message}</Text>
+                    <Text style={styles.error}>{errors.confirmPassword.message}</Text>
                 )}
 
+                <Text style={styles.label}>Email:</Text>
                 <Controller
                     name="email"
                     control={control}
@@ -118,38 +116,68 @@ function Cadastro({ navigation }: Props) {
                         },
                     }}
                     render={({ field: { onChange, value } }) => (
-                        <View>
-                            <Text>Email</Text>
-                            <TextInput
-                                value={value}
-                                onChangeText={onChange}
-                                placeholder="Digite seu email"
-                                keyboardType="email-address"
-                                style={{ borderBottomWidth: 1, marginBottom: 10 }}
-                            />
-                        </View>
+                        <TextInput
+                            value={value}
+                            onChangeText={onChange}
+                            placeholder="Digite seu email"
+                            keyboardType="email-address"
+                            style={styles.input}
+                        />
                     )}
                 />
-                {errors?.email && <Text style={{ color: 'red' }}>{errors.email.message}</Text>}
+                {errors?.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
-                <View style={{ marginTop: 20 }}>
-                    <Text
-                        onPress={handleSubmit(onSubmit)}
-                        style={{
-                            textAlign: "center",
-                            backgroundColor: "#007bff",
-                            color: "white",
-                            padding: 10,
-                            borderRadius: 5,
-                        }}
-                    >
-                        Cadastrar
-                    </Text>
-                </View>
+                <TouchableOpacity onPress={handleSubmit(onSubmit)} style={styles.btn}>
+                    <Text style={styles.btnText}>Cadastrar</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
 }
 
-
 export default Cadastro
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#fff",
+    },
+    title: {
+        color: "orange",
+        fontWeight: "bold",
+        fontSize: 30,
+        marginBottom: 30,
+    },
+    label: {
+        fontSize: 20,
+        marginBottom: 5,
+    },
+    input: {
+        width: 250,
+        height: 50,
+        backgroundColor: "#F6F2F2",
+        marginBottom: 15,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+    },
+    btn: {
+        marginTop: 20,
+        width: 215,
+        height: 60,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "orange",
+    },
+    btnText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 18,
+    },
+    error: {
+        color: "red",
+        marginBottom: 10,
+    },
+});

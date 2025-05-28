@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import { Alert, Text, TouchableOpacity, View } from "react-native"
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { TextInput } from "react-native-gesture-handler"
 import { RootStackParamList } from "../types/routes"
 
@@ -15,12 +15,18 @@ type Props = NativeStackScreenProps<RootStackParamList, "Login">
 
 function Login( {navigation}: Props ) {
     const [form, setForm] = useState<FormData[]>([])
-    const {reset, register, handleSubmit, formState: {errors}, getValues, control } = useForm<FormData>({})
+    const {reset, register, handleSubmit, formState: {errors}, getValues, control } = useForm<FormData>({
+        defaultValues: {
+            username: "",
+            password: "",
+            email: "",
+        },
+    })
 
         async function handleSign(data: FormData) {
         try {
             const response = await fetch("http://localhost/8080/api/usuario", {
-                method: "JSON",
+                method: "GET",
                 headers: {
                     "Content-Type":"application/json"
                 }, 
@@ -39,10 +45,10 @@ function Login( {navigation}: Props ) {
     }
 
     return(
-        <View>
-            <Text>Login:</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Login</Text>
             <View>
-                <Text>Usuário:</Text>
+                <Text style={{fontSize: 20}}>Usuário:</Text>
                 <Controller 
                     name="username"
                     control={control}
@@ -52,11 +58,12 @@ function Login( {navigation}: Props ) {
                         placeholder="Digite seu usuário:"
                         onChangeText={onChange}
                         value={value}
+                        style={styles.input}
                         />
                     )}
                 />
-                {errors?.username && <Text>Usuário é obrigatório</Text>}
-                <Text>Senha:</Text>
+                {errors?.username && <Text>{errors.username.message || "Usuário é obrigatório"}</Text>}
+                <Text style={{fontSize: 20}}>Senha:</Text>
                 <Controller 
                     name="password"
                     control={control}
@@ -66,11 +73,12 @@ function Login( {navigation}: Props ) {
                         placeholder="Digite a senha:"
                         onChangeText={onChange}
                         value={value}
+                        style={styles.input}
                         />
                     )}
                 />
-                {errors?.username && <Text>Senha é obrigatório</Text>}
-                <Text>Email:</Text>
+                {errors?.password && <Text>{errors.password.message || "Senha é obrigatório"} </Text>}
+                <Text style={{fontSize: 20}}>Email:</Text>
                 <Controller 
                     name="email"
                     control={control}
@@ -80,12 +88,13 @@ function Login( {navigation}: Props ) {
                         placeholder="Digite o email:"
                         onChangeText={onChange}
                         value={value}
+                        style={styles.input}
                         />
                     )}
                 />
-                {errors?.username && <Text>Email é obrigatório</Text>}
-                <TouchableOpacity onPress={() => navigation}>
-                    <Text>Entrar</Text>
+                {errors?.email && <Text>{errors.email.message || "Email é obrigatório"}</Text>}
+                <TouchableOpacity onPress={() => navigation} style={styles.btn}>
+                    <Text style={styles.btnText}>Entrar</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -93,3 +102,39 @@ function Login( {navigation}: Props ) {
 }
 
 export default Login
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#fff",
+    },
+    title: {
+        color: "orange",
+        fontWeight: "bold",
+        fontSize: 30,
+        marginBottom: 30,
+    },
+    input: {
+        width: 250,
+        height: 50,
+        backgroundColor: "#F6F2F2",
+        marginBottom: 20,
+        marginTop: 5,
+    },
+    btn: {
+        marginTop: 20,
+        width: 215,
+        height: 60,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "orange",
+    },
+    btnText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 18,
+    },
+})

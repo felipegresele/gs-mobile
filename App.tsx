@@ -14,7 +14,7 @@ export default function App() {
   return (
     <GestureHandlerRootView>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Mapa' screenOptions={{
+        <Stack.Navigator initialRouteName='BoasVindas' screenOptions={{
           headerShown: true,
           headerStyle: {
             backgroundColor: "black",

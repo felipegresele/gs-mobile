@@ -7,6 +7,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { useEffect, useState } from "react";
 import MapView, { Marker } from "react-native-maps";
@@ -94,65 +95,76 @@ function Mapa({ navigation }: Props) {
 
   const incendios = [
     {
-        id: "incendio1",
-        descricao: "Incêndio em edifício",
-        status: "Forte",
-        nivel: 3,
-        precisaResgaste: true,
-        pessoasAfetadas: 3,
-        tipo: "Urbano",
-        registradoPor: "usuario123",
-        dataHora: new Date().toISOString(),
-        fase: "Em andamento",
-        latitude: -23.5505,
-        longitude: -46.6333,
+      id: "incendio1",
+      descricao: "Incêndio em edifício",
+      status: "Forte",
+      nivel: 3,
+      precisaResgaste: true,
+      pessoasAfetadas: 3,
+      tipo: "Urbano",
+      registradoPor: "usuario123",
+      dataHora: new Date().toISOString(),
+      fase: "Em andamento",
+      latitude: location.latitude + 0.005,
+      longitude: location.longitude - 0.006,
     },
     {
-        id: "incendio2",
-        descricao: "Fogo em área de vegetação",
-        status: "Moderado",
-        nivel: 2,
-        precisaResgaste: false,
-        pessoasAfetadas: 0,
-        tipo: "Florestal",
-        registradoPor: "usuario456",
-        dataHora: new Date().toISOString(),
-        fase: "Sob controle",
-        latitude: -23.5520,
-        longitude: -46.6300,
+      id: "incendio2",
+      descricao: "Fogo em área de vegetação",
+      status: "Moderado",
+      nivel: 2,
+      precisaResgaste: false,
+      pessoasAfetadas: 0,
+      tipo: "Florestal",
+      registradoPor: "usuario456",
+      dataHora: new Date().toISOString(),
+      fase: "Sob controle",
+      latitude: location.latitude - 0.008,
+      longitude: location.longitude + 0.004,
     },
     {
-        id: "incendio3",
-        descricao: "Explosão em galpão industrial",
-        status: "Crítico",
-        nivel: 5,
-        precisaResgaste: true,
-        pessoasAfetadas: 12,
-        tipo: "Industrial",
-        registradoPor: "equipe_bombeiros",
-        dataHora: new Date().toISOString(),
-        fase: "Não iniciado",
-        latitude: -23.5490,
-        longitude: -46.6360,
+      id: "incendio3",
+      descricao: "Explosão em galpão industrial",
+      status: "Crítico",
+      nivel: 5,
+      precisaResgaste: true,
+      pessoasAfetadas: 12,
+      tipo: "Industrial",
+      registradoPor: "equipe_bombeiros",
+      dataHora: new Date().toISOString(),
+      fase: "Não iniciado",
+      latitude: location.latitude + 0.01,
+      longitude: location.longitude + 0.005,
     },
     {
-        id: "incendio4",
-        descricao: "Incêndio em residência",
-        status: "Leve",
-        nivel: 1,
-        precisaResgaste: false,
-        pessoasAfetadas: 1,
-        tipo: "Residencial",
-        registradoPor: "usuario789",
-        dataHora: new Date().toISOString(),
-        fase: "Extinto",
-        latitude: -23.5535,
-        longitude: -46.6380,
+      id: "incendio4",
+      descricao: "Incêndio em residência",
+      status: "Leve",
+      nivel: 1,
+      precisaResgaste: false,
+      pessoasAfetadas: 1,
+      tipo: "Residencial",
+      registradoPor: "usuario789",
+      dataHora: new Date().toISOString(),
+      fase: "Extinto",
+      latitude: location.latitude - 0.006,
+      longitude: location.longitude - 0.005,
     }
-  ]
+  ];
 
   return (
     <View style={styles.container}>
+      <View style={styles.topButtons}>
+        <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Adicionar Incêndio +</Text>  
+        </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.button, styles.dashboardButton]}
+            onPress={() => navigation.navigate("Dashboard")}
+        >
+            <Text style={styles.buttonText}>Dashboard</Text>
+        </TouchableOpacity>
+      </View>
       <MapView style={styles.map} region={usarRegiao} showsUserLocation={true}>
         {abrigos.map((abrigo) => (
           <Marker
@@ -187,8 +199,10 @@ function Mapa({ navigation }: Props) {
                 latitude: incendio.latitude,
                 longitude: incendio.longitude,
              }}
+                title={`Incêndio: ${incendio.tipo}`}
+                description={`${incendio.descricao} - Status: ${incendio.status} - Fase: ${incendio.fase}`}
+                pinColor="#FF6B00"
             />
-             
         ))}
       </MapView>
     </View>
@@ -207,6 +221,38 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  topButtons: {
+    position: "absolute",
+    top: 50,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    zIndex: 10,
+  },
+  
+  button: {
+    backgroundColor: "#FF6B00",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  
+  dashboardButton: {
+    backgroundColor: "#0066CC",
+  },
+  
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });
 

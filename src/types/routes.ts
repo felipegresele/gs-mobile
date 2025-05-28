@@ -8,4 +8,5 @@ export type RootStackParamList = {
     Emergencia: undefined,
     Abrigos: undefined,
     Mapa: undefined,
+    Dashboard: undefined,
 }
