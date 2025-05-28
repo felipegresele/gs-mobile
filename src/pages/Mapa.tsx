@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import {getAbrigos, getAlertas, getIncendios} from "../types/mockData"
 
 type Props = NativeStackScreenProps<RootStackParamList, "Mapa">;
 
@@ -51,106 +52,9 @@ function Mapa({ navigation }: Props) {
     longitudeDelta: 0.05,
   };
 
-  const abrigos = [
-    {
-      id: "abrigo1",
-      nome: "Abrigo Escola A",
-      latitude: location.latitude + 0.01,
-      longitude: location.longitude - 0.01,
-    },
-    {
-      id: "abrigo2",
-      nome: "Centro Comunitário",
-      latitude: location.latitude - 0.015,
-      longitude: location.longitude + 0.012,
-    },
-    {
-        id: "abrigo3",
-        nome: "Igreja São João",
-        latitude: location.latitude - 0.07,
-        longitude: location.longitude + 0.05,
-    },
-    {
-        id: "abrigo4",
-        nome: "Clube Recreativo",
-        latitude: location.latitude - 0.02,
-        longitude: location.longitude + 0.03,
-    },
-  ];
-
-  const alertas = [
-    {
-      id: "alerta1",
-      descricao: "Foco de incêndio na mata",
-      latitude: location.latitude + 0.012,
-      longitude: location.longitude + 0.004,
-    },
-    {
-      id: "alerta2",
-      descricao: "Forte fumaça em um edifício",
-      latitude: location.latitude + 0.07,
-      longitude: location.latitude + 0.04,
-    }
-  ];
-
-  const incendios = [
-    {
-      id: "incendio1",
-      descricao: "Incêndio em edifício",
-      status: "Forte",
-      nivel: 3,
-      precisaResgaste: true,
-      pessoasAfetadas: 3,
-      tipo: "Urbano",
-      registradoPor: "usuario123",
-      dataHora: new Date().toISOString(),
-      fase: "Em andamento",
-      latitude: location.latitude + 0.005,
-      longitude: location.longitude - 0.006,
-    },
-    {
-      id: "incendio2",
-      descricao: "Fogo em área de vegetação",
-      status: "Moderado",
-      nivel: 2,
-      precisaResgaste: false,
-      pessoasAfetadas: 0,
-      tipo: "Florestal",
-      registradoPor: "usuario456",
-      dataHora: new Date().toISOString(),
-      fase: "Sob controle",
-      latitude: location.latitude - 0.008,
-      longitude: location.longitude + 0.004,
-    },
-    {
-      id: "incendio3",
-      descricao: "Explosão em galpão industrial",
-      status: "Crítico",
-      nivel: 5,
-      precisaResgaste: true,
-      pessoasAfetadas: 12,
-      tipo: "Industrial",
-      registradoPor: "equipe_bombeiros",
-      dataHora: new Date().toISOString(),
-      fase: "Não iniciado",
-      latitude: location.latitude + 0.01,
-      longitude: location.longitude + 0.005,
-    },
-    {
-      id: "incendio4",
-      descricao: "Incêndio em residência",
-      status: "Leve",
-      nivel: 1,
-      precisaResgaste: false,
-      pessoasAfetadas: 1,
-      tipo: "Residencial",
-      registradoPor: "usuario789",
-      dataHora: new Date().toISOString(),
-      fase: "Extinto",
-      latitude: location.latitude - 0.006,
-      longitude: location.longitude - 0.005,
-    }
-  ];
+  const abrigos = getAbrigos(location.latitude, location.longitude);
+  const alertas = getAlertas(location.latitude, location.longitude);
+  const incendios = getIncendios(location.latitude, location.longitude);
 
   return (
     <View style={styles.container}>
