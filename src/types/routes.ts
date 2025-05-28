@@ -7,4 +7,5 @@ export type RootStackParamList = {
     Alertas: undefined,
     Emergencia: undefined,
     Abrigos: undefined,
+    Mapa: undefined,
 }

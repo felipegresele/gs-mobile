@@ -6,6 +6,7 @@ import { RootStackParamList } from './src/types/routes';
 import BoasVindas from './src/pages/BoasVindas';
 import Login from './src/pages/Login';
 import Cadastro from './src/pages/Cadastro';
+import Mapa from './src/pages/Mapa';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -13,7 +14,7 @@ export default function App() {
   return (
     <GestureHandlerRootView>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='BoasVindas' screenOptions={{
+        <Stack.Navigator initialRouteName='Mapa' screenOptions={{
           headerShown: true,
           headerStyle: {
             backgroundColor: "black",
@@ -24,6 +25,7 @@ export default function App() {
         }}/>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
+        <Stack.Screen name="Mapa" component={Mapa} />
         </Stack.Navigator>
         
       </NavigationContainer>

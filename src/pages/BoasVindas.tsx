@@ -20,7 +20,7 @@ function BoasVindas( {navigation}:Props ) {
                 <TouchableOpacity style={[styles.btn, {backgroundColor: "black"}]} onPress={() => navigation.navigate("Cadastro")}>
                     <Text style={styles.btnText}>Cadastrar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.btn, {backgroundColor: "red", marginTop: 25 }]} onPress={() => navigation.navigate("Emergencia")}>
+                <TouchableOpacity style={[styles.btn, {backgroundColor: "red", marginTop: 25 }]} onPress={() => navigation.navigate("Mapa")}>
                     <Text style={styles.btnText}>Emergencia(SOS)</Text>
                 </TouchableOpacity>
             </View>
