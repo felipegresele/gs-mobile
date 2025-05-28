@@ -1,12 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { RootStackParamList } from './src/types/routes';
+import BoasVindas from './src/pages/BoasVindas';
+import Login from './src/pages/Login';
+import Cadastro from './src/pages/Cadastro';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GestureHandlerRootView>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='BoasVindas' screenOptions={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "black",
+          },
+        }}>
+          <Stack.Screen name="BoasVindas" component={BoasVindas} options={{
+          headerShown: false,
+        }}/>
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Cadastro" component={Cadastro} />
+        </Stack.Navigator>
+        
+      </NavigationContainer>
+
+    </GestureHandlerRootView>
   );
 }
 
