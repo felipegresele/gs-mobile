@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form"
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { TextInput } from "react-native-gesture-handler"
 import { RootStackParamList } from "../types/routes"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 export interface FormData {
         username: string,
@@ -23,24 +24,27 @@ function Login( {navigation}: Props ) {
         },
     })
 
-        async function handleSign(data: FormData) {
+        async function handleSignIn(data: FormData) {
         try {
-            const response = await fetch("http://localhost/8080/api/usuario", {
-                method: "GET",
-                headers: {
-                    "Content-Type":"application/json"
-                }, 
-                body: JSON.stringify(data),
-            })
-            if (!response.ok) {
-                throw new Error("Erro ao cadastrar");
+            const usersData = await AsyncStorage.getItem("@usuarios");
+            const users = usersData ? JSON.parse(usersData) : [];
+        
+            const foundUser = users.find(
+                (user: FormData) =>
+                user.username === data.username && user.password === data.password
+            );
+        
+            if (foundUser) {
+                console.log("Login bem-sucedido", foundUser);
+                // Armazena usuário logado atual, se quiser
+                await AsyncStorage.setItem("@usuario_logado", JSON.stringify(foundUser));
+                navigation.navigate("AppDrawer");
+            } else {
+                Alert.alert("Usuário ou senha inválidos!");
+                reset()
             }
-            const result = await response.json()
-            Alert.alert("Usuário cadastrado com sucesso!")
-            reset()
-        } catch(error) {
-            console.error("Erro ao fazer a requisição", error)
-            Alert.alert("Erro ao fazer a requisição!")
+        } catch (error) {
+            console.error("Erro ao verificar login", error);
         }
     }
 
@@ -93,8 +97,11 @@ function Login( {navigation}: Props ) {
                     )}
                 />
                 {errors?.email && <Text>{errors.email.message || "Email é obrigatório"}</Text>}
-                <TouchableOpacity onPress={() => navigation} style={styles.btn}>
+                <TouchableOpacity onPress={handleSubmit(handleSignIn)} style={styles.btn}>
                     <Text style={styles.btnText}>Entrar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>
+                    <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -137,4 +144,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 18,
     },
+    link: {
+    color: '#888888',
+    textAlign: 'center',
+    fontSize: 13,
+    marginTop: 10,
+  },
 })

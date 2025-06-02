@@ -1,9 +1,9 @@
 import { View } from "react-native";
 
-function Dashboard() {
+function Alerta() {
     return (
         <View></View>
     )
 }
 
-export default Dashboard
+export default Alerta

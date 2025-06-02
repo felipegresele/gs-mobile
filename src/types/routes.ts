@@ -9,4 +9,5 @@ export type RootStackParamList = {
     Abrigos: undefined,
     Mapa: undefined,
     Dashboard: undefined,
+    AppDrawer: undefined,
 }

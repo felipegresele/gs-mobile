@@ -1,8 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { Controller, useForm } from "react-hook-form"
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { TextInput } from "react-native-gesture-handler"
+import { Alert, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native"
 import { RootStackParamList } from "../types/routes"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 export interface FormData {
     username: string,
@@ -31,12 +31,28 @@ function Cadastro({ navigation }: Props) {
 
     const password = watch("password");
 
-    const onSubmit = (data: FormData) => {
-        console.log("Dados do formulário: ", data);
-        Alert.alert("Cadastro realizado com sucesso!");
-        navigation.navigate("Mapa")
-        reset();
-    };
+    async function HandleSign(data: FormData) {
+        try {
+            const usersData = await AsyncStorage.getItem("@usuarios");
+            const users = usersData ? JSON.parse(usersData) : [];
+            
+            const userExists = users.find((user: FormData) => user.username === data.username)
+
+            if (userExists) {
+                Alert.alert("Usuário já existe!")
+                return;
+            }
+
+            users.push(data);
+            await AsyncStorage.setItem("@usuarios", JSON.stringify(users))
+            Alert.alert("Usuário cadastrado!")
+            //Navegar para pagína de Login
+            navigation.navigate("Login")
+        } catch (error) {
+            Alert.alert("Erro ao salvar os dados")
+            console.error("Erro ao salvar os dados:", error)
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -58,6 +74,30 @@ function Cadastro({ navigation }: Props) {
                 />
                 {errors?.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
+                <Text style={styles.label}>Email:</Text>
+                <Controller
+                    name="email"
+                    control={control}
+                    rules={{
+                        required: "Email é obrigatório",
+                        pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                            message: "Email inválido",
+                        },
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                        <TextInput
+                            value={value}
+                            onChangeText={onChange}
+                            placeholder="Digite seu email"
+                            keyboardType="email-address"
+                            style={styles.input}
+                        />
+                    )}
+                />
+                    
+                {errors?.email && <Text style={styles.error}>{errors.email.message}</Text>}
+
                 <Text style={styles.label}>Senha:</Text>
                 <Controller
                     name="password"
@@ -66,7 +106,7 @@ function Cadastro({ navigation }: Props) {
                         required: "Senha é obrigatória",
                         maxLength: {
                             value: 15,
-                            message: "A senha não pode ter mais de 10 caracteres",
+                            message: "A senha não pode ter mais de 15 caracteres",
                         },
                     }}
                     render={({ field: { onChange, value } }) => (
@@ -96,6 +136,7 @@ function Cadastro({ navigation }: Props) {
                             onChangeText={onChange}
                             placeholder="Confirme sua senha"
                             secureTextEntry
+                            keyboardType="visible-password"
                             style={styles.input}
                         />
                     )}
@@ -104,30 +145,7 @@ function Cadastro({ navigation }: Props) {
                     <Text style={styles.error}>{errors.confirmPassword.message}</Text>
                 )}
 
-                <Text style={styles.label}>Email:</Text>
-                <Controller
-                    name="email"
-                    control={control}
-                    rules={{
-                        required: "Email é obrigatório",
-                        pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                            message: "Email inválido",
-                        },
-                    }}
-                    render={({ field: { onChange, value } }) => (
-                        <TextInput
-                            value={value}
-                            onChangeText={onChange}
-                            placeholder="Digite seu email"
-                            keyboardType="email-address"
-                            style={styles.input}
-                        />
-                    )}
-                />
-                {errors?.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
-                <TouchableOpacity onPress={handleSubmit(onSubmit)} style={styles.btn}>
+                <TouchableOpacity onPress={handleSubmit(HandleSign)} style={styles.btn}>
                     <Text style={styles.btnText}>Cadastrar</Text>
                 </TouchableOpacity>
             </View>

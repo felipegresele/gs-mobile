@@ -10,15 +10,27 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useEffect, useState } from "react";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, MapPressEvent } from "react-native-maps";
 import * as Location from "expo-location";
-import {getAbrigos, getAlertas, getIncendios} from "../types/mockData"
+import { getAbrigos, getAlertas, getIncendios } from "../types/mockData";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Mapa">;
+
+interface Incendio {
+  id: string;
+  latitude: number;
+  longitude: number;
+  descricao: string;
+  status: string;
+  fase: string;
+  tipo: string;
+}
 
 function Mapa({ navigation }: Props) {
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [incendios, setIncendios] = useState<Incendio[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -36,6 +48,37 @@ function Mapa({ navigation }: Props) {
     })();
   }, []);
 
+  // Pega dados mockados (se quiser pode manter ou remover)
+  const abrigos = getAbrigos(location?.latitude ?? 0, location?.longitude ?? 0);
+  const alertas = getAlertas(location?.latitude ?? 0, location?.longitude ?? 0);
+
+  // Inicializa incêndios mockados apenas na primeira renderização
+  useEffect(() => {
+    if (location) {
+      const mockIncendios = getIncendios(location.latitude, location.longitude);
+      setIncendios(mockIncendios);
+    }
+  }, [location]);
+
+  // Pega os dados enviados da tela RelatarIncendio
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      const params = navigation.getState().routes.find(r => r.name === "Mapa")?.params as any;
+      if (params?.newIncendio) {
+        const newInc = params.newIncendio as Incendio;
+        // Só adiciona se não existir (para evitar duplicados)
+        setIncendios((old) => {
+          if (old.some(i => i.id === newInc.id)) return old;
+          return [...old, newInc];
+        });
+        // Remove o param para não adicionar de novo
+        navigation.setParams({ newIncendio: undefined });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   if (!location) {
     return (
       <View style={styles.center}>
@@ -52,24 +95,43 @@ function Mapa({ navigation }: Props) {
     longitudeDelta: 0.05,
   };
 
-  const abrigos = getAbrigos(location.latitude, location.longitude);
-  const alertas = getAlertas(location.latitude, location.longitude);
-  const incendios = getIncendios(location.latitude, location.longitude);
+  // Função ao tocar no mapa para selecionar local do incêndio
+  function handleMapPress(event: MapPressEvent) {
+    setSelectedLocation(event.nativeEvent.coordinate);
+  }
+
+  // Navegar para tela de relatar incêndio com a coordenada selecionada
+  function handleAddIncendio() {
+    if (!selectedLocation) {
+      Alert.alert("Selecione um local no mapa antes de adicionar um incêndio.");
+      return;
+    }
+
+    navigation.navigate("RelatarIncendio", {
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude,
+    });
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.topButtons}>
-        <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Adicionar Incêndio +</Text>  
+        <TouchableOpacity style={styles.button} onPress={handleAddIncendio}>
+          <Text style={styles.buttonText}>Adicionar Incêndio +</Text>
         </TouchableOpacity>
         <TouchableOpacity
-            style={[styles.button, styles.dashboardButton]}
-            onPress={() => navigation.navigate("Dashboard")}
+          style={[styles.button, styles.dashboardButton]}
+          onPress={() => navigation.navigate("Dashboard")}
         >
-            <Text style={styles.buttonText}>Dashboard</Text>
+          <Text style={styles.buttonText}>Dashboard</Text>
         </TouchableOpacity>
       </View>
-      <MapView style={styles.map} region={usarRegiao} showsUserLocation={true}>
+      <MapView
+        style={styles.map}
+        region={usarRegiao}
+        showsUserLocation={true}
+        onPress={handleMapPress}
+      >
         {abrigos.map((abrigo) => (
           <Marker
             key={abrigo.id}
@@ -78,7 +140,7 @@ function Mapa({ navigation }: Props) {
               longitude: abrigo.longitude,
             }}
             title={abrigo.nome}
-            description="Abrigo disponível"
+            description={`Abrigo disponível - Capacidade: ${abrigo.capacidade}`}
             pinColor="green"
           />
         ))}
@@ -97,17 +159,26 @@ function Mapa({ navigation }: Props) {
         ))}
 
         {incendios.map((incendio) => (
-            <Marker 
-             key={incendio.id}
-             coordinate={{
-                latitude: incendio.latitude,
-                longitude: incendio.longitude,
-             }}
-                title={`Incêndio: ${incendio.tipo}`}
-                description={`${incendio.descricao} - Status: ${incendio.status} - Fase: ${incendio.fase}`}
-                pinColor="#FF6B00"
-            />
+          <Marker
+            key={incendio.id}
+            coordinate={{
+              latitude: incendio.latitude,
+              longitude: incendio.longitude,
+            }}
+            title={`Incêndio: ${incendio.tipo}`}
+            description={`Status: ${incendio.status} - Fase: ${incendio.fase} - ${incendio.descricao}`}
+            pinColor="#FF6B00"
+          />
         ))}
+
+        {/* Marcador temporário para local selecionado */}
+        {selectedLocation && (
+          <Marker
+            coordinate={selectedLocation}
+            title="Local selecionado"
+            pinColor="blue"
+          />
+        )}
       </MapView>
     </View>
   );
@@ -136,7 +207,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     zIndex: 10,
   },
-  
+
   button: {
     backgroundColor: "#FF6B00",
     paddingVertical: 10,
@@ -148,11 +219,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  
+
   dashboardButton: {
     backgroundColor: "#0066CC",
   },
-  
+
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
